@@ -167,7 +167,7 @@ const ChatList = ({ onSelectChat, socket }) => {
         <h1 className="text-xl font-bold pb-3 border-b border-gray-300 flex items-center gap-2.5">
           <img
             className="w-14 h-14 bg-none rounded-full"
-            src={`${API_URL}/emerald2.png`}
+            src={`https://justtalk-frontend.onrender.com/emerald2.png`}
             alt=""
           />
           <p className="text-3xl">JustTalk</p>
