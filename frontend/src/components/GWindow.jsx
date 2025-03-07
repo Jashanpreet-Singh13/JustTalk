@@ -5,6 +5,8 @@ import { IoSend } from "react-icons/io5";
 import EmojiPicker from "emoji-picker-react";
 import { toast, Toaster } from "react-hot-toast";
 
+const API_URL = import.meta.env.VITE_BACKEND_URL;
+
 const formatTimestamp = (timestamp) => {
   const date = new Date(timestamp);
   return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
@@ -24,7 +26,7 @@ const GWindow = ({ selectedGroup, user, socket }) => {
     const fetchMessages = async () => {
       try {
         const res = await axios.get(
-          `http://localhost:5000/api/group/${selectedGroup._id}/messages`,
+          `${API_URL}/api/group/${selectedGroup._id}/messages`,
           { withCredentials: true }
         );
         setMessages(res.data || []);
@@ -140,11 +142,9 @@ const GWindow = ({ selectedGroup, user, socket }) => {
       formData.append("image", selectedImage);
 
       try {
-        const res = await axios.post(
-          "http://localhost:5000/api/upload",
-          formData,
-          { headers: { "Content-Type": "multipart/form-data" } }
-        );
+        const res = await axios.post(`${API_URL}/api/upload`, formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
         imageUrl = res.data.imageUrl;
       } catch (err) {
         console.error("Image upload failed", err);
@@ -175,7 +175,7 @@ const GWindow = ({ selectedGroup, user, socket }) => {
             <div className="flex items-center gap-2.5">
               <img
                 className="h-14 w-14 rounded-full"
-                src={`http://localhost:5000${selectedGroup.avatar}`}
+                src={`${API_URL}${selectedGroup.avatar}`}
                 alt=""
               />
               <h2 className="text-lg font-semibold">{selectedGroup.name}</h2>
@@ -201,7 +201,7 @@ const GWindow = ({ selectedGroup, user, socket }) => {
                 <span className="text-xs text-gray-600">{msg.sender.name}</span>
                 {msg.image ? (
                   <img
-                    src={`http://localhost:5000${msg.image}`}
+                    src={`${API_URL}${msg.image}`}
                     alt="Sent"
                     height={50}
                     width={300}

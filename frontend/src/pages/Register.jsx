@@ -5,6 +5,8 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Mail, Lock, User } from "lucide-react";
 
+const API_URL = import.meta.env.VITE_BACKEND_URL;
+
 const Register = () => {
   const [form, setForm] = useState({ name: "", email: "", password: "" });
   const [loading, setLoading] = useState(true);
@@ -22,7 +24,7 @@ const Register = () => {
     e.preventDefault();
     try {
       const res = await axios.post(
-        "http://localhost:5000/api/auth/register",
+        `${API_URL}/api/auth/register`,
         form
       );
       toast.success(res.data.message);

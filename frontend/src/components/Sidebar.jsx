@@ -4,9 +4,10 @@ import { TbCircleDot } from "react-icons/tb";
 import { BiMessageRoundedAdd } from "react-icons/bi";
 import { HiOutlineUserGroup } from "react-icons/hi2";
 import { CiSettings } from "react-icons/ci";
-import { FaUserCircle } from "react-icons/fa";
 import { Tooltip } from "@mui/material";
 import useAuth from "../hooks/useAuth";
+
+const API_URL = import.meta.env.VITE_BACKEND_URL;
 
 const Sidebar = ({ setSelectedSection }) => {
   const { user, userLoading } = useAuth();
@@ -81,7 +82,7 @@ const Sidebar = ({ setSelectedSection }) => {
                 src={
                   user.avatar.startsWith("http")
                     ? user.avatar
-                    : `http://localhost:5000${user.avatar}`
+                    : `${API_URL}${user.avatar}`
                 }
                 alt="Profile"
                 className="w-full h-full rounded-full object-cover"

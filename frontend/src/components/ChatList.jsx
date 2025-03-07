@@ -7,6 +7,7 @@ import { BsThreeDotsVertical } from "react-icons/bs";
 import { LogOut } from "lucide-react";
 import { Toaster, toast } from "react-hot-toast";
 
+const API_URL = import.meta.env.VITE_BACKEND_URL;
 
 const ChatList = ({ onSelectChat, socket }) => {
   const navigate = useNavigate();
@@ -85,7 +86,7 @@ const ChatList = ({ onSelectChat, socket }) => {
 
   const fetchUsers = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/api/auth/users", {
+      const response = await axios.get(`${API_URL}/api/auth/users`, {
         withCredentials: true,
       });
       setUsers(response.data);
@@ -99,7 +100,7 @@ const ChatList = ({ onSelectChat, socket }) => {
   const fetchOnlineUsers = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:5000/api/online-users"
+        `${API_URL}/api/online-users`
       );
       setOnlineUsers(response.data);
     } catch (err) {
@@ -128,12 +129,9 @@ const ChatList = ({ onSelectChat, socket }) => {
       socket.emit("stopTyping", { sender: user._id, receiver: activeChatId });
       socket.disconnect();
 
-      const response = await axios.get(
-        "http://localhost:5000/api/auth/logout",
-        {
-          withCredentials: true,
-        }
-      );
+      const response = await axios.get(`${API_URL}/api/auth/logout`, {
+        withCredentials: true,
+      });
 
       if (response.data.message === "Logged out") {
         toast.success("Logout Successful");
@@ -234,7 +232,7 @@ const ChatList = ({ onSelectChat, socket }) => {
           <span className="text-sm font-medium text-gray-700">
             Show online users only
           </span>
-        </label>  
+        </label>
       </div>
 
       <div className="overflow-y-auto flex-grow mt-2">
@@ -256,7 +254,7 @@ const ChatList = ({ onSelectChat, socket }) => {
                     chatUser.avatar !== "/public/images/u3.png"
                       ? chatUser.avatar.startsWith("http")
                         ? chatUser.avatar
-                        : `http://localhost:5000${chatUser.avatar}`
+                        : `${API_URL}${chatUser.avatar}`
                       : "/images/u3.png"
                   }
                   alt="User"

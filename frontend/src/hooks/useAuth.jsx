@@ -5,10 +5,12 @@ const useAuth = () => {
   const [user, setUser] = useState(null);
   const [userLoading, setUserLoading] = useState(true);
 
+  const API_URL = import.meta.env.VITE_BACKEND_URL;
+
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/auth/me", {
+        const res = await axios.get(`${API_URL}/api/auth/me`, {
           withCredentials: true,
         });
         setUser(res.data.user); 

@@ -4,6 +4,7 @@ import { FaSearch, FaPlus, FaTimes } from "react-icons/fa";
 import useAuth from "../hooks/useAuth";
 import { toast, Toaster } from "react-hot-toast";
 
+const API_URL = import.meta.env.VITE_BACKEND_URL;
 
 const GList = ({ onSelectGroup, socket }) => {
   const { user, userLoading } = useAuth();
@@ -53,7 +54,7 @@ const GList = ({ onSelectGroup, socket }) => {
 
   const fetchGroups = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/api/group", {
+      const response = await axios.get(`${API_URL}/api/group`, {
         withCredentials: true,
       });
       setGroups(response.data);
@@ -66,7 +67,7 @@ const GList = ({ onSelectGroup, socket }) => {
 
   const fetchUsers = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/api/auth/users", {
+      const response = await axios.get(`${API_URL}/api/auth/users`, {
         withCredentials: true,
       });
       setUsers(response.data);
@@ -83,7 +84,7 @@ const GList = ({ onSelectGroup, socket }) => {
 
     try {
       const response = await axios.post(
-        "http://localhost:5000/api/group/create",
+        `${API_URL}/api/group/create`,
         { name: groupName, memberIds: selectedMembers },
         { withCredentials: true }
       );
@@ -170,7 +171,7 @@ const GList = ({ onSelectGroup, socket }) => {
 
       if (formData.has("name") || formData.has("avatar")) {
         const res = await axios.put(
-          `http://localhost:5000/api/group/${selectedGroupForModal._id}`,
+          `${API_URL}/api/group/${selectedGroupForModal._id}`,
           formData,
           {
             headers: { "Content-Type": "multipart/form-data" },
@@ -214,7 +215,7 @@ const GList = ({ onSelectGroup, socket }) => {
 
     try {
       const res = await axios.put(
-        `http://localhost:5000/api/group/${selectedGroupForModal._id}/add-members`,
+        `${API_URL}/api/group/${selectedGroupForModal._id}/add-members`,
         { memberIds: selectedMembers },
         { withCredentials: true }
       );
@@ -239,7 +240,7 @@ const GList = ({ onSelectGroup, socket }) => {
   const handleDeleteMember = async (memberId) => {
     try {
       const res = await axios.put(
-        `http://localhost:5000/api/group/${selectedGroupForModal._id}/remove-members`,
+        `${API_URL}/api/group/${selectedGroupForModal._id}/remove-members`,
         { memberIds: [memberId] },
         { withCredentials: true }
       );
@@ -264,12 +265,9 @@ const GList = ({ onSelectGroup, socket }) => {
     if (!window.confirm("Are you sure you want to delete this group?")) return;
 
     try {
-      await axios.delete(
-        `http://localhost:5000/api/group/${selectedGroupForModal._id}`,
-        {
-          withCredentials: true,
-        }
-      );
+      await axios.delete(`${API_URL}/api/group/${selectedGroupForModal._id}`, {
+        withCredentials: true,
+      });
       setGroups((prev) =>
         prev.filter((g) => g._id !== selectedGroupForModal._id)
       );
@@ -322,7 +320,7 @@ const GList = ({ onSelectGroup, socket }) => {
               >
                 <img
                   className="rounded-full h-14 w-14 object-cover"
-                  src={`http://localhost:5000${group.avatar}`}
+                  src={`${API_URL}${group.avatar}`}
                   alt=""
                 />
                 <span className="absolute top-8 left-10 bg-emerald-500 text-white p-1 rounded-full text-xs">
@@ -416,7 +414,7 @@ const GList = ({ onSelectGroup, socket }) => {
                   src={
                     newGroupDp
                       ? URL.createObjectURL(newGroupDp)
-                      : `http://localhost:5000${selectedGroupForModal.avatar}`
+                      : `${API_URL}${selectedGroupForModal.avatar}`
                   }
                   alt="Group DP"
                   className="w-24 h-24 rounded-full object-cover"
@@ -472,7 +470,7 @@ const GList = ({ onSelectGroup, socket }) => {
                   >
                     <div className="flex items-center gap-2">
                       <img
-                        src={`http://localhost:5000${member.avatar}`}
+                        src={`${API_URL}${member.avatar}`}
                         alt={member.name}
                         className="w-8 h-8 rounded-full"
                       />

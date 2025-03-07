@@ -6,6 +6,7 @@ import EmojiPicker from "emoji-picker-react";
 import { IoSend } from "react-icons/io5";
 import {toast, Toaster} from "react-hot-toast";
 
+const API_URL = import.meta.env.VITE_BACKEND_URL;
 
 const formatTimestamp = (timestamp) => {
   const date = new Date(timestamp);
@@ -76,7 +77,7 @@ const ChatWindow = ({ selectedChat, user, socket }) => {
     const fetchMessages = async () => {
       try {
         const res = await axios.get(
-          `http://localhost:5000/api/chat/${user._id}/${selectedChat._id}`,
+          `${API_URL}/api/chat/${user._id}/${selectedChat._id}`,
           {
             withCredentials: true,
           }
@@ -242,13 +243,9 @@ const ChatWindow = ({ selectedChat, user, socket }) => {
       console.log(selectedImage);
 
       try {
-        const res = await axios.post(
-          "http://localhost:5000/api/upload",
-          formData,
-          {
-            headers: { "Content-Type": "multipart/form-data" },
-          }
-        );
+        const res = await axios.post(`${API_URL}/api/upload`, formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
 
         if (res.data.imageUrl) {
           imageUrl = res.data.imageUrl;
@@ -287,7 +284,7 @@ const ChatWindow = ({ selectedChat, user, socket }) => {
                   selectedChat.avatar !== "/public/images/u3.png"
                     ? selectedChat.avatar.startsWith("http")
                       ? selectedChat.avatar
-                      : `http://localhost:5000${selectedChat.avatar}`
+                      : `${API_URL}${selectedChat.avatar}`
                     : "/public/images/u3.png"
                 }
                 alt="User"
@@ -328,7 +325,7 @@ const ChatWindow = ({ selectedChat, user, socket }) => {
               >
                 {msg.image ? (
                   <img
-                    src={`http://localhost:5000${msg.image}`}
+                    src={`${API_URL}${msg.image}`}
                     alt="Sent"
                     height={50}
                     width={300}

@@ -2,9 +2,11 @@ import { useState, useEffect } from "react";
 import { Upload } from "lucide-react";
 import { Toaster, toast } from "react-hot-toast";
 
+const API_URL = import.meta.env.VITE_BACKEND_URL;
+
 export default function Profile({ user, setUser }) {
   const [avatar, setAvatar] = useState(
-    user.avatar ? `http://localhost:5000${user.avatar}` : ""
+    user.avatar ? `${API_URL}${user.avatar}` : ""
   );
   const [preview, setPreview] = useState(null);
   const [selectedFile, setSelectedFile] = useState(null);
@@ -12,7 +14,7 @@ export default function Profile({ user, setUser }) {
   useEffect(() => {
     setAvatar(
       user.avatar
-        ? `http://localhost:5000${user.avatar}?t=${Date.now()}`
+        ? `${API_URL}${user.avatar}?t=${Date.now()}`
         : "/images/u3.png"
     );
   }, [user.avatar]);
@@ -56,17 +58,17 @@ export default function Profile({ user, setUser }) {
     formData.append("userId", user._id);
 
     try {
-      const res = await fetch("http://localhost:5000/api/auth/upload-avatar", {
+      const res = await fetch(`${API_URL}/api/auth/upload-avatar`, {
         method: "POST",
         body: formData,
       });
 
       const data = await res.json();
       if (data.success) {
-        const newAvatarUrl = `http://localhost:5000${
+        const newAvatarUrl = `${API_URL}${
           data.avatar
         }?t=${Date.now()}`;
-        await fetch("http://localhost:5000/api/auth/update-avatar", {
+        await fetch(`${API_URL}/api/auth/update-avatar`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ userId: user._id, avatar: data.avatar }),

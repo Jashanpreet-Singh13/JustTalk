@@ -16,19 +16,6 @@ export default function Settings({ user }) {
 
   const navigate = useNavigate();
 
-  const handleLogout = async () => {
-    const res = await axios("http://localhost:5000/api/auth/logout" , {
-      withCredentials: true
-    });
-
-    if(res.data.message == "Logged out") {
-      toast.success("Logout Successfull");
-      setTimeout(() => {
-        navigate("/login");
-      }, 3000);
-    }
-  }
-
   return (
     <div className="h-full w-180 p-3 bg-white border border-gray-400 border-y-0 mt-0">
       <div className="p-6 space-y-6">
