@@ -21,7 +21,7 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: "https://justtalk-frontend.onrender.com",
+    origin: process.env.FRONTEND_URL,
     methods: ["GET", "POST"],
   },
 });
@@ -35,7 +35,7 @@ app.use("/uploads", express.static("uploads"));
 app.use(express.json());
 app.use(cookieParser());
 app.use(
-  cors({ origin: "https://justtalk-frontend.onrender.com", credentials: true })
+  cors({ origin: process.env.FRONTEND_URL, credentials: true })
 );
 
 app.use("/api/auth", authRoutes);
