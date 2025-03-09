@@ -8,7 +8,7 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: "/uploads/u3.png",
   },
-  lastSeen: { type: Date, default: null },
+  lastSeen: { type: Date, default: new Date },
 });
 
 module.exports = mongoose.model("User", userSchema);
