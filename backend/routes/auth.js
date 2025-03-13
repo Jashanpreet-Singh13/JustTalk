@@ -6,6 +6,7 @@ const router = express.Router();
 const Message = require("../models/Message");
 const multer = require("multer");
 const path = require("path");
+const sendEmail = require("../utils/sendEmail");
 
 const storage = multer.diskStorage({
   destination: "uploads/",
@@ -41,21 +42,104 @@ router.post("/upload-avatar", upload.single("avatar"), async (req, res) => {
   }
 });
 
+router.post("/forgot-password", async (req, res) => {
+  try {
+    const { email } = req.body;
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(400).json({ message: "Email not found" });
+    }
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const otpExpires = Date.now() + 10 * 60 * 1000; // 10 minutes
+
+    user.resetOtp = otp;
+    user.resetOtpExpires = otpExpires;
+    await user.save();
+
+    await sendEmail(
+      email,
+      "JustTalk - Password Reset Request",
+      `
+      <h3>Hello ${user.name},</h3>
+      <p>We received a request to reset your password for your JustTalk account. Use the OTP below to reset your password:</p>
+      <h2 style="color: #2d89ef;">${otp}</h2>
+      <p><strong>Note:</strong> This OTP is valid for only 10 minutes. If you did not request a password reset, please ignore this email.</p>
+      <p>For security reasons, never share this OTP with anyone.</p>
+      <br>
+      <p>Best Regards,</p>
+      <p><strong>JustTalk Support Team</strong></p>
+      `
+    );
+
+
+    res.json({ message: "OTP sent to your email", email });
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+router.post("/verify-otp", async (req, res) => {
+  try {
+    const { email, otp } = req.body;
+    const user = await User.findOne({
+      email,
+      resetOtp: otp,
+      resetOtpExpires: { $gt: Date.now() },
+    });
+
+    if (!user) {
+      return res.status(400).json({ message: "Invalid or expired OTP" });
+    }
+
+    res.json({ message: "OTP verified", email });
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+router.post("/reset-password", async (req, res) => {
+  try {
+    const { email, newPassword } = req.body;
+    const user = await User.findOne({ email });
+
+    if (!user || !user.resetOtp || user.resetOtpExpires < Date.now()) {
+      return res.status(400).json({ message: "OTP not verified or expired" });
+    }
+
+    if (newPassword.length < 6) {
+      return res.status(400).json({ message: "Password must be at least 6 characters" });
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+    user.password = hashedPassword;
+    user.resetOtp = undefined;
+    user.resetOtpExpires = undefined;
+    await user.save();
+
+    res.json({ message: "Password reset successful" });
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
 router.post("/register", async (req, res) => {
   try {
     const { name, email, password } = req.body;
 
     const nameExists = await User.findOne({ name });
-    if(nameExists) {
-      return res.status(400).json({message: "Name Already taken! Use Another!"});
+    if (nameExists) {
+      return res.status(400).json({ message: "Name Already taken! Use Another!" });
     }
 
     const userExists = await User.findOne({ email });
     if (userExists)
       return res.status(400).json({ message: "User with this email already exists" });
 
-    if(password.length < 6) {
-      return res.status(400).json({message: "Password length should be minimum 6 characters"});
+    if (password.length < 6) {
+      return res.status(400).json({ message: "Password length should be minimum 6 characters" });
     }
 
     const salt = await bcrypt.genSalt(10);
@@ -168,7 +252,7 @@ router.get("/users", async (req, res) => {
 });
 
 router.patch("/update-avatar", async (req, res) => {
-  const { userId, avatar } = req.body; 
+  const { userId, avatar } = req.body;
   try {
     const updatedUser = await User.findByIdAndUpdate(
       userId,

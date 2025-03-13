@@ -9,6 +9,8 @@ const userSchema = new mongoose.Schema({
     default: "/uploads/u3.png",
   },
   lastSeen: { type: Date, default: new Date },
+  resetOtp: String, 
+  resetOtpExpires: Date,
 });
 
 module.exports = mongoose.model("User", userSchema);
