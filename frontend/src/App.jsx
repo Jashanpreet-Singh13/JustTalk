@@ -4,8 +4,9 @@ import Register from "./pages/Register";
 import MainPage from "./pages/MainPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import ForgotPassword from "./pages/ForgotPassword";
-import VerifyOtp from "./pages/VerifyOtp"; // New import
+import VerifyOtp from "./pages/VerifyOtp";
 import ResetPassword from "./pages/ResetPassword";
+import VerifyOtpRegister from "./pages/VerifyOtpRegister";
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/verify-otp" element={<VerifyOtp />} />
         <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/verify-otp-register" element={<VerifyOtpRegister />} />
         <Route element={<ProtectedRoute />}>
           <Route path="/" element={<MainPage />} />
         </Route>

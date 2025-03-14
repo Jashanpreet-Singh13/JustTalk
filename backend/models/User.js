@@ -11,6 +11,7 @@ const userSchema = new mongoose.Schema({
   lastSeen: { type: Date, default: new Date },
   resetOtp: String, 
   resetOtpExpires: Date,
+  verified: { type: Boolean, default: false },
 });
 
 module.exports = mongoose.model("User", userSchema);

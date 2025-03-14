@@ -1,8 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { Toaster, toast } from "react-hot-toast";
 import { FiMail } from "react-icons/fi";
 
 const API_URL = import.meta.env.VITE_BACKEND_URL;
@@ -18,9 +17,7 @@ const ForgotPassword = () => {
       const res = await axios.post(`${API_URL}/api/auth/forgot-password`, { email });
       setIsOtpSent(true);
       toast.success(res.data.message);
-      setTimeout(() => {
-        navigate("/verify-otp", { state: { email } }); // Pass email to next page
-      }, 3000);
+      navigate("/verify-otp", { state: {email} });
     } catch (err) {
       toast.error(err.response?.data?.message || "Failed to send OTP");
     }
@@ -58,7 +55,7 @@ const ForgotPassword = () => {
           </button>
         </form>
       </div>
-      <ToastContainer position="top-center" autoClose={3000} />
+      <Toaster position="top-center"/>
     </div>
   );
 };

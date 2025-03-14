@@ -1,8 +1,7 @@
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { Toaster, toast } from "react-hot-toast"
 import { FiCode } from "react-icons/fi";
 
 const API_URL = import.meta.env.VITE_BACKEND_URL;
@@ -18,9 +17,7 @@ const VerifyOtp = () => {
     try {
       const res = await axios.post(`${API_URL}/api/auth/verify-otp`, { email, otp });
       toast.success(res.data.message);
-      setTimeout(() => {
-        navigate("/reset-password", { state: { email } });
-      }, 3000);
+      navigate("/reset-password", { state: {email} });
     } catch (err) {
       toast.error(err.response?.data?.message || "Failed to verify OTP");
     }
@@ -56,7 +53,7 @@ const VerifyOtp = () => {
           </button>
         </form>
       </div>
-      <ToastContainer position="top-center" autoClose={3000} />
+      <Toaster position="top-center"/>
     </div>
   );
 };

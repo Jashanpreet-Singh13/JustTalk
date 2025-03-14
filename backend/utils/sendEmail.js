@@ -2,10 +2,10 @@ const nodemailer = require("nodemailer");
 
 const sendEmail = async (to, subject, htmlContent) => {
   const transporter = nodemailer.createTransport({
-    service: "Gmail", // You can use another service like SendGrid
+    service: "Gmail",
     auth: {
-      user: process.env.EMAIL_USER, // Your Gmail email
-      pass: process.env.EMAIL_PASS, // Your Gmail app password (not regular password)
+      user: process.env.EMAIL_USER, 
+      pass: process.env.EMAIL_PASS, 
     },
   });
 

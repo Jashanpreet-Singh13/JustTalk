@@ -7,6 +7,7 @@ const Message = require("../models/Message");
 const multer = require("multer");
 const path = require("path");
 const sendEmail = require("../utils/sendEmail");
+const { verifyEmail } = require("../utils/verifyEmail");
 
 const storage = multer.diskStorage({
   destination: "uploads/",
@@ -131,12 +132,19 @@ router.post("/register", async (req, res) => {
 
     const nameExists = await User.findOne({ name });
     if (nameExists) {
-      return res.status(400).json({ message: "Name Already taken! Use Another!" });
+      return res.status(400).json({ message: "Name already taken! Use another!" });
     }
 
+    const isValidEmail = await verifyEmail(email);
+    if(!isValidEmail) {
+      return res.status(400).json({ message: "Invalid or Not-Existent Email" });
+    }
+    console.log("isValidEmail = " + isValidEmail);
+    
     const userExists = await User.findOne({ email });
-    if (userExists)
+    if (userExists) {
       return res.status(400).json({ message: "User with this email already exists" });
+    }
 
     if (password.length < 6) {
       return res.status(400).json({ message: "Password length should be minimum 6 characters" });
@@ -145,7 +153,62 @@ router.post("/register", async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    await User.create({ name, email, password: hashedPassword });
+    // Generate OTP
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const otpExpires = Date.now() + 10 * 60 * 1000; // 10 minutes
+
+    // Create unverified user
+    await User.create({
+      name,
+      email,
+      password: hashedPassword,
+      resetOtp: otp,
+      resetOtpExpires: otpExpires,
+      verified: false,
+    });
+
+    // Send OTP email
+    await sendEmail(
+      email,
+      "JustTalk - Verify Your Email",
+      `
+      <h3>Welcome to JustTalk, ${name}!</h3>
+      <p>Thank you for signing up. To complete your registration, please verify your email using the OTP below:</p>
+      <h2 style="color: #2d89ef;">${otp}</h2>
+      <p><strong>Note:</strong> This OTP is valid for only 10 minutes. Please do not share it with anyone.</p>
+      <p>If you didn’t sign up for JustTalk, you can safely ignore this email.</p>
+      <br>
+      <p>Best Regards,</p>
+      <p><strong>JustTalk Team</strong></p>
+      `
+    );
+
+
+    res.json({ message: "OTP sent to your email", email });
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+router.post("/verify-otp-register", async (req, res) => {
+  try {
+    const { email, otp } = req.body;
+
+    const user = await User.findOne({
+      email,
+      resetOtp: otp,
+      resetOtpExpires: { $gt: Date.now() },
+    });
+
+    if (!user) {
+      return res.status(400).json({ message: "Invalid or expired OTP" });
+    }
+
+    // Verify the user
+    user.verified = true;
+    user.resetOtp = undefined;
+    user.resetOtpExpires = undefined;
+    await user.save();
 
     res.json({ message: "Registration successful" });
   } catch (error) {
@@ -158,11 +221,14 @@ router.post("/login", async (req, res) => {
     const { email, password } = req.body;
 
     const user = await User.findOne({ email });
-    if (!user) return res.status(400).json({ message: "Invalid Email" });
+    if (!user) return res.status(400).json({ message: "Email not found" });
+
+    if (!user.verified) {
+      return res.status(400).json({ message: "OTP verification Pending" });
+    }
 
     const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch)
-      return res.status(400).json({ message: "Invalid password" });
+    if (!isMatch) return res.status(400).json({ message: "Invalid password" });
 
     const token = jwt.sign(
       { userId: user._id, name: user.name, email: user.email },

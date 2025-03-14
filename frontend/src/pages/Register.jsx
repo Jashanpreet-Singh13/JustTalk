@@ -10,6 +10,7 @@ const API_URL = import.meta.env.VITE_BACKEND_URL;
 const Register = () => {
   const [form, setForm] = useState({ name: "", email: "", password: "" });
   const [loading, setLoading] = useState(true);
+  const [otpSent, setOtpSent] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -23,13 +24,11 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post(
-        `${API_URL}/api/auth/register`,
-        form
-      );
+      const res = await axios.post(`${API_URL}/api/auth/register`, form);
+      setOtpSent(true);
       toast.success(res.data.message);
       setTimeout(() => {
-        if (res.status === 200) navigate("/login");
+        navigate("/verify-otp-register", { state: { email: form.email } });
       }, 3500);
     } catch (err) {
       toast.error(err.response?.data?.message || "Registration failed");
@@ -79,13 +78,18 @@ const Register = () => {
                 className="w-full bg-transparent p-2 outline-none"
                 onChange={handleChange}
                 required
+                disabled={otpSent}
               />
             </div>
             <button
               type="submit"
-              className="w-full bg-emerald-600 text-white p-3 rounded-lg font-semibold hover:bg-emerald-700 transition-all"
+              className={`w-full p-2 rounded-lg font-semibold transition text-white ${
+              otpSent
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-emerald-600 hover:bg-emerald-700"
+            }`}
             >
-              Register
+              {otpSent ? "OTP Sent" : "Send OTP"}
             </button>
           </form>
           <p className="text-center mt-4 text-gray-600">
